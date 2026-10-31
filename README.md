@@ -1,12 +1,13 @@
 # 🐧 Palmer Penguins — Exploratory Data Analysis & Species Classification
 > **End-to-End Data Science & Machine Learning Portfolio Project**  
 > **Author:** Assia Farah ([@farah-assia](https://github.com/farah-assia))  
-> **Tools:** Python 3 · Scikit-learn · Pandas · NumPy · Matplotlib · Seaborn · Jupyter / Google Colab · ReportLab  
+> **Tools:** Python 3 · Scikit-learn · Streamlit · Joblib · Pandas · NumPy · Matplotlib · Seaborn · Jupyter / Google Colab · ReportLab  
 > **Dataset:** Palmer Penguins (*Palmer Station LTER, Antarctica* — CC0)  
 > **License:** MIT License  
 
 ---
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io)
 [![Open In Colab (EDA)](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/farah-assia/palmer-penguins-eda/blob/main/01_data_exploration.ipynb)
 [![Open In Colab (Classification)](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/farah-assia/palmer-penguins-eda/blob/main/02_classification.ipynb)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -18,9 +19,31 @@
 This repository presents an end-to-end data science study of the **Palmer Penguins** dataset collected by Dr. Kristen Gorman and the Palmer Station Long Term Ecological Research (LTER) program in the Palmer Archipelago, Antarctica.
 
 > ℹ️ **Project Context:**  
-> The framing ("Client Mission N° 01") is a **fictional educational simulation** modeled after an applied consulting mission for an ecological research institute. It covers both:
+> The framing ("Client Mission N° 01") is an **applied educational simulation** modeled after a consulting mission for an ecological research institute. It covers:
 > 1. **Phase 1 — Exploratory Data Analysis (EDA):** Morphological diversity audit, descriptive statistics, outlier diagnosis, and data leakage checks.
-> 2. **Phase 2 — Predictive Species Classification:** Feature engineering, k-NN sex imputation inside Scikit-learn pipelines, hyperparameter optimization, the 3-configurations experiment on geographic confounding (`island`), and rigorous statistical evaluation.
+> 2. **Phase 2 — Predictive Species Classification:** Feature engineering (`bill_ratio`), Scikit-learn preprocessing pipelines, hyperparameter tuning, the 3-configurations experiment on geographic confounding (`island`), and rigorous statistical evaluation.
+> 3. **Interactive Deployment (Streamlit):** Model export via `joblib` into a clean web application (`app.py`) for live prediction and probability estimation.
+
+---
+
+## 🚀 Live Interactive Streamlit App (`app.py`)
+
+An interactive web application is included to predict a penguin's species in real time from morphological inputs:
+
+* **Interactive Controls:** Sliders for bill length, bill depth, flipper length, body mass, and optional sex.
+* **Instant Inference:** Dynamically calculates the engineered `bill_ratio`, processes the input through the saved Scikit-learn pipeline (`models/penguin_model.joblib`), and returns predicted species with calibrated posterior probabilities.
+* **Confidence Diagnosis:** Flags low-confidence predictions ($< 80\%$) when measurements fall near species boundary zones.
+
+### Running Locally
+```bash
+streamlit run app.py
+```
+
+### Free Deployment on Streamlit Community Cloud (1-2 minutes)
+1. Fork or push this repository to your GitHub account (`farah-assia/palmer-penguins-eda`).
+2. Go to **[share.streamlit.io](https://share.streamlit.io)** and log in with your GitHub account.
+3. Click **"New app"**, select this repository, branch `main`, and set the main file path to `app.py`.
+4. Click **"Deploy"**! Streamlit Cloud automatically installs dependencies from `requirements.txt` and provides a public URL (e.g. `https://palmer-penguins-classifier.streamlit.app`).
 
 ---
 
@@ -29,7 +52,7 @@ This repository presents an end-to-end data science study of the **Palmer Pengui
 * **Rigorous Data Cleaning & Integrity:**  
   * Raw dataset: **344 records** across 3 species (*Adelie*: 152, *Gentoo*: 124, *Chinstrap*: 68).
   * Only **2 records without any physical measurements** were removed (index 3: Adelie on Torgersen; index 339: Gentoo on Biscoe), yielding **$N = 342$ valid morphological individuals** (*Adelie*: 151, *Gentoo*: 123, *Chinstrap*: 68).
-  * Missing `sex` values: **11 in the raw dataset, exactly 9 in the cleaned dataset** (all 9 had complete physical measurements and were preserved during EDA, then cleanly imputed via $k$-NN within the machine learning pipeline).
+  * Missing `sex` values: **11 in the raw dataset, exactly 9 in the cleaned dataset** (all 9 had complete physical measurements and were preserved during EDA, then cleanly imputed within the machine learning pipeline).
 * **Biological Reality vs. Statistical Outliers:**  
   Tukey's IQR rule ($1.5 \times \text{IQR}$) flagged several penguins as body mass outliers. However, domain investigation proved that these individuals belong exclusively to the **Gentoo** species, which is naturally **$\approx 37\%$ heavier** ($\mu = 5076\text{ g}$ vs. $\mu \approx 3701\text{ g}$ for Adelie). These points reflect genuine evolutionary allometry and were deliberately retained.
 * **Simpson's Paradox Revealed:**  
@@ -72,14 +95,18 @@ The confusion matrix on the hold-out test set ($N=69$) and the 2D decision bound
 ```text
 ├── 01_data_exploration.ipynb          # Phase 1: Full exploratory data analysis & statistical audit
 ├── 02_classification.ipynb             # Phase 2: ML pipeline, feature engineering, CV & model evaluation
+├── app.py                             # Interactive Streamlit web application
 ├── README.md                          # Project documentation, findings, and execution guide
 ├── report.pdf                         # 4-page executive PDF summary (A4 format, ReportLab)
-├── requirements.txt                   # Reproducible Python dependencies (with scikit-learn >= 1.3)
+├── requirements.txt                   # Reproducible Python dependencies (with streamlit & scikit-learn)
 ├── LICENSE                            # MIT Open Source License
 ├── .gitignore                         # Python cache and temporary files exclusion
 │
 ├── data/
 │   └── penguins.csv                   # Raw source dataset (344 rows, CC0 Palmer Station LTER)
+│
+├── models/                            # Trained production artifacts
+│   └── penguin_model.joblib           # Final Scikit-learn Pipeline (preprocessing + Logistic Regression)
 │
 ├── figures/                           # High-resolution (300 DPI) publication figures
 │   ├── 01_histograms_distributions.png
@@ -98,7 +125,8 @@ The confusion matrix on the hold-out test set ($N=69$) and the 2D decision bound
     ├── generate_figures.py            # Generates Phase 1 EDA figures
     ├── build_pdf_report.py            # Compiles the 4-page PDF executive report
     ├── build_notebook.py              # Compiles and runs 01_data_exploration.ipynb end-to-end
-    └── build_classification_notebook.py # Compiles and runs 02_classification.ipynb end-to-end
+    ├── build_classification_notebook.py # Compiles and runs 02_classification.ipynb end-to-end
+    └── train_model.py                 # Trains and exports models/penguin_model.joblib
 ```
 
 ---
@@ -132,7 +160,7 @@ The confusion matrix on the hold-out test set ($N=69$) and the 2D decision bound
 
 ### 1. Methodology & Anti-Leakage Protocol
 * **Stratified 80/20 Split:** 273 samples for training, 69 for hold-out test (`random_state=42`, stratified by `species`).
-* **Strict Anti-Leakage Pipeline:** Imputation ($k$-NN, $k=5$) and scaling (`StandardScaler`) are fitted strictly on training folds inside Scikit-learn `Pipeline` objects.
+* **Strict Anti-Leakage Pipeline:** Imputation and scaling (`StandardScaler`) are fitted strictly on training folds inside Scikit-learn `Pipeline` objects.
 * **Evaluation Metric:** **Macro F1-score** is selected over accuracy because it treats all species equally, preventing the model from ignoring the minority class (*Chinstrap*, $\approx 20\%$).
 * **Validation Strategy:** **Repeated Stratified 5-Fold Cross-Validation (10 repeats = 50 folds)** to provide stable estimates despite the small sample size.
 
@@ -147,7 +175,7 @@ The confusion matrix on the hold-out test set ($N=69$) and the 2D decision bound
 | **Logistic Regression (Selected)** | `C=10.0, solver='lbfgs', max_iter=1000` | **0.9892 ± 0.0152** | **[0.9850, 0.9934]** | **99.16 %** |
 
 **Why Logistic Regression was chosen as the production model:**
-1. **Top Performance:** Highest mean Macro F1 ($0.9892$) with the lowest variance.
+1. **Top Performance:** Highest mean Macro F1 ($0.9892$) with the lowest variance across repeated folds.
 2. **Interpretability:** Provides direct log-odds coefficients tied to allometric traits.
 3. **Calibrated Probabilities:** The Softmax function outputs reliable posterior probabilities.
 4. **Parsimony:** Minimal computational overhead and zero risk of hyperparameter overfitting.
@@ -193,28 +221,32 @@ Analyzing out-of-fold predictions across the 273 training samples revealed **onl
 2. **Domain Context Over Statistical Heuristics:** Tukey's $1.5 \times \text{IQR}$ rule labeled heavy penguins as outliers. Domain understanding showed that these were Gentoo penguins ($\approx +37\%$ mass difference). Business and domain context must always supervise data preprocessing.
 3. **Simpson's Paradox in Action:** Observing an aggregate negative correlation ($r = -0.24$) flip to strong positive correlations ($+0.39$ to $+0.65$) within species was an eye-opening demonstration of confounding variables.
 4. **Avoiding Shortcut Learning:** A feature like `island` can boost cross-validation scores while destroying real-world transferability. Responsible machine learning requires pruning shortcut features.
-5. **Statistical Humility:** A 100% test score on a small dataset ($N=69$) should be treated with healthy skepticism; repeated cross-validation provides the true signal.
+5. **Model Serialization & Deployment:** Exporting full Scikit-learn pipelines with `joblib` guarantees that feature scaling and encoding are identical between training and live inference in Streamlit.
+6. **Statistical Humility:** A 100% test score on a small dataset ($N=69$) should be treated with healthy skepticism; repeated cross-validation provides the true signal.
 
 ---
 
 ## 🔮 Next Steps & Future Directions
 
-Having completed the classification model, the next steps for this project include:
-1. **Interactive Web Application (Streamlit):** Build and deploy a real-time penguin identification dashboard where field researchers can input measurements and receive predicted species with calibrated probabilities.
-2. **REST API Deployment (FastAPI & Docker):** Containerize the Scikit-learn pipeline for automated inference in remote monitoring setups.
-3. **Model Explainability (SHAP):** Integrate SHAP (*SHapley Additive exPlanations*) force plots to explain individual predictions on ambiguous cases.
-4. **Unsupervised Phenotype Clustering:** Apply t-SNE, UMAP, and HDBSCAN to test whether unsupervised morphological clustering naturally separates the three species without ground truth labels.
-5. **External Validation:** Test the model on independent morphometric datasets from other Antarctic research stations.
+1. **REST API Deployment (FastAPI & Docker):** Containerize the Scikit-learn pipeline for automated batch and streaming inference.
+2. **Model Explainability (SHAP):** Integrate SHAP (*SHapley Additive exPlanations*) force plots to explain individual predictions on ambiguous cases.
+3. **Unsupervised Phenotype Clustering:** Apply t-SNE, UMAP, and HDBSCAN to test whether unsupervised morphological clustering naturally separates the three species without ground truth labels.
+4. **External Validation:** Test the model on independent morphometric datasets from other Antarctic research stations.
 
 ---
 
 ## 🚀 Reproduction & Execution Guide
 
-### Option 1 — In Google Colab (One-Click)
+### Option 1 — Run the Interactive Streamlit Web App
+```bash
+streamlit run app.py
+```
+
+### Option 2 — In Google Colab (One-Click)
 * [Run 01_data_exploration.ipynb in Google Colab](https://colab.research.google.com/github/farah-assia/palmer-penguins-eda/blob/main/01_data_exploration.ipynb)
 * [Run 02_classification.ipynb in Google Colab](https://colab.research.google.com/github/farah-assia/palmer-penguins-eda/blob/main/02_classification.ipynb)
 
-### Option 2 — Locally with Python and Git
+### Option 3 — Locally with Python and Git
 ```bash
 # 1. Clone the repository
 git clone https://github.com/farah-assia/palmer-penguins-eda.git
@@ -234,8 +266,14 @@ pip install -r requirements.txt
 jupyter notebook
 ```
 
-### Option 3 — Automated Pipeline Execution
+### Option 4 — Automated Pipeline Execution
 ```bash
+# Train and save the production model artifact
+python scripts/train_model.py
+
+# Launch the Streamlit application
+streamlit run app.py
+
 # Generate all Phase 1 figures
 python scripts/generate_figures.py
 
@@ -252,7 +290,7 @@ python scripts/build_classification_notebook.py
 ### Reproducibility Parameters
 * **Python version:** >= 3.10 (tested on Python 3.14)
 * **Random seed:** `RANDOM_STATE = 42` across all splits, models, and cross-validations.
-* **Core dependencies:** `pandas>=2.0`, `numpy>=1.24`, `matplotlib>=3.7`, `seaborn>=0.12`, `scikit-learn>=1.3.0`, `scipy>=1.10.0`, `reportlab>=4.0`.
+* **Core dependencies:** `pandas>=2.0`, `numpy>=1.24`, `scikit-learn>=1.3.0`, `joblib>=1.3.0`, `streamlit>=1.28.0`, `matplotlib>=3.7`, `seaborn>=0.12`, `scipy>=1.10.0`, `reportlab>=4.0`.
 
 ---
 
@@ -265,4 +303,4 @@ The Palmer Penguins dataset is made available under the **Creative Commons Publi
 ---
 
 ## 🏷️ Suggested GitHub Topics
-`data-science` · `machine-learning` · `eda` · `scikit-learn` · `classification` · `palmer-penguins` · `statistics` · `python` · `ecology`
+`streamlit` · `data-science` · `machine-learning` · `eda` · `scikit-learn` · `classification` · `palmer-penguins` · `statistics` · `python` · `ecology`

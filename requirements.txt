@@ -1,13 +1,15 @@
 # ==============================================================================
 # Palmer Penguins - Exploratory Data Analysis & Species Classification
 # Fictional Learning Exercise - Portfolio Project
-# Required dependencies for local execution or virtual environment
+# Required dependencies for local execution, Streamlit Cloud, or virtual env
 # ==============================================================================
 
 pandas>=2.0.0
 numpy>=1.24.0
 scipy>=1.10.0
 scikit-learn>=1.3.0
+joblib>=1.3.0
+streamlit>=1.28.0
 matplotlib>=3.7.0
 seaborn>=0.12.0
 reportlab>=4.0.0
